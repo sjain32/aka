@@ -1,65 +1,191 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import NoSSR from './components/NoSSR';
+import Navbar from './components/Navbar';
+import VideoHero from './components/VideoHero';
+import EditorSection from './components/EditorSection';
+import ReelsShowcase from './components/ReelsShowcase';
+import ServicesSection from './components/ServicesSection';
+import ProcessSection from './components/ProcessSection';
+import TestimonialsSection from './components/TestimonialsSection';
+import FAQSection from './components/FAQSection';
+import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
+import ScrollReveal from './components/ScrollReveal';
+import CustomCursor from './components/CustomCursor';
+import Preloader from './components/Preloader';
+import BackgroundScene from './components/BackgroundScene';
+import ParticleGlobe from './components/ParticleGlobe';
+
+type Phase = 'loading' | 'entering' | 'done';
 
 export default function Home() {
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [entranceProgress, setEntranceProgress] = useState(0);
+  const entranceRafRef = useRef<number>(0);
+  const entranceStartRef = useRef<number>(0);
+  const DURATION = 1500; // 1.5s entrance animation
+
+  const startEntrance = useCallback(() => {
+    setPhase('entering');
+    entranceStartRef.current = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - entranceStartRef.current;
+      const progress = Math.min(1, elapsed / DURATION);
+      // Ease-out
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setEntranceProgress(eased);
+
+      if (progress < 1) {
+        entranceRafRef.current = requestAnimationFrame(tick);
+      } else {
+        setEntranceProgress(1);
+        setPhase('done');
+      }
+    };
+
+    entranceRafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  useEffect(() => {
+    return () => cancelAnimationFrame(entranceRafRef.current);
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <NoSSR fallback={
+      <div className="min-h-screen" style={{ background: 'var(--bg-root)' }}>
+        <section className="hero">
+          <div className="container">
+            <h1 className="hero-title">Video Editor Portfolio</h1>
+            <p className="hero-subtitle">
+              Bringing stories to life through creative video editing
+            </p>
+          </div>
+        </section>
+      </div>
+    }>
+      {/* Preloader — visible during loading + entrance */}
+      {phase !== 'done' && (
+        <Preloader
+          onComplete={startEntrance}
+          exitProgress={phase === 'entering' ? entranceProgress : 0}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+      )}
+
+      {/* Globe — always present, assembles during entrance */}
+      <ParticleGlobe
+        entranceProgress={phase === 'loading' ? 0 : phase === 'entering' ? entranceProgress : null}
+      />
+
+      <ClientOnlyPortfolio show={phase === 'done'} />
+    </NoSSR>
+  );
+}
+
+function ClientOnlyPortfolio({ show }: { show: boolean }) {
+  const scrollToProjects = () => {
+    const el = document.getElementById('work');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <motion.div
+      className="min-h-screen"
+      style={{ background: 'var(--bg-root)' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: show ? 1 : 0 }}
+      transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+    >
+      <CustomCursor />
+      <BackgroundScene />
+      <Navbar />
+
+      <div id="hero">
+        <VideoHero
+          youtubeId="cAY8UEAGaI4"
+          title="Watch My Latest Work"
+          subtitle="Professional video editing that brings your vision to life"
+          ctaText="Explore My Work"
+          onCtaClick={scrollToProjects}
+        />
+      </div>
+
+      <div id="about">
+        <ScrollReveal animation="fade-up" duration={1}>
+          <EditorSection
+            name="AKASH"
+            title="VIDEO EDITOR"
+            location="BASED IN YOUR CITY"
+            description="I'm a passionate and dedicated freelance video editor with a keen eye for detail and a creative flair. With years of experience in the industry, I specialize in creating compelling visual stories that captivate audiences and elevate brands."
+            imageUrl="/profile.png"
+            socialLinks={{
+              instagram: 'https://instagram.com/yourusername',
+              facebook: 'https://facebook.com/yourusername',
+              youtube: 'https://youtube.com/@yourusername',
+              behance: 'https://behance.net/yourusername',
+            }}
+          />
+        </ScrollReveal>
+      </div>
+
+      <div id="reels">
+        <ReelsShowcase />
+      </div>
+
+      <ServicesSection />
+      <ProcessSection />
+      <TestimonialsSection />
+      <FAQSection />
+
+      <div id="contact">
+        <section
+          className="relative py-24 md:py-32 px-6 text-center"
+          style={{ background: 'var(--bg-section)' }}
+        >
+          <div className="glass-divider absolute top-0 left-6 right-6" />
+          <ScrollReveal animation="fade-up" duration={0.8}>
+            <span
+              className="inline-block text-xs font-semibold tracking-[0.15em] uppercase mb-4"
+              style={{ color: 'var(--accent)', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Let&apos;s Work Together
+            </span>
+            <h2
+              className="text-3xl md:text-5xl font-bold mb-4 tracking-[-0.02em]"
+              style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              Ready to create something great?
+            </h2>
+            <p
+              className="text-base leading-relaxed max-w-[450px] mx-auto mb-8"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              Whether it&apos;s a single reel or an ongoing content partnership,
+              I&apos;m here to bring your vision to life.
+            </p>
+            <motion.a
+              href="mailto:akash@example.com"
+              className="btn btn-primary btn-lg inline-flex items-center gap-2"
+              style={{ textDecoration: 'none', transformStyle: 'preserve-3d' }}
+              whileHover={{ scale: 1.06, translateZ: 20 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
+              Book a Free Call
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </motion.a>
+          </ScrollReveal>
+        </section>
+      </div>
+
+      <Footer />
+      <BackToTop />
+    </motion.div>
   );
 }
