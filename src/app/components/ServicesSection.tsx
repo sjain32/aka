@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 /* ── SVG Icons ── */
 
@@ -82,6 +82,35 @@ const SERVICES: Service[] = [
 
 function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; isVisible: boolean }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isActive, setIsActive] = useState(false);
+
+  // IntersectionObserver — highlight card when scrolled into view (mobile visibility)
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setIsActive(true);
+        } else {
+          if (entry.boundingClientRect.bottom < -50 || entry.boundingClientRect.top > window.innerHeight + 50) {
+            setIsActive(false);
+          }
+        }
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const isMobile = window.innerWidth < 768;
+    const obs = new IntersectionObserver(handleIntersection, {
+      threshold: isMobile ? [0, 0.3, 0.5, 0.7, 1] : [0, 0.5, 1],
+      rootMargin: isMobile ? '-10% 0px -10% 0px' : '0px',
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [handleIntersection]);
 
   const onMove = (e: React.MouseEvent) => {
     const el = cardRef.current;
@@ -101,8 +130,8 @@ function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; i
     if (!el) return;
     el.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0) translateZ(0)';
     el.style.background = 'var(--bg-glass)';
-    el.style.borderColor = 'var(--border-subtle)';
-    el.style.boxShadow = 'none';
+    el.style.borderColor = isActive ? 'var(--border-accent-strong)' : 'var(--border-subtle)';
+    el.style.boxShadow = isActive ? '0 0 0 2px rgba(255,107,53,0.2), 0 0 24px rgba(255,107,53,0.12), var(--shadow-card)' : 'none';
     el.style.zIndex = '1';
   };
 
@@ -114,14 +143,19 @@ function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; i
       transition={{ duration: 0.7, delay: 0.15 + index * 0.1, ease: [0.16, 0.04, 0.12, 1] }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="group relative p-8 md:p-10 rounded-2xl cursor-default"
+      className={`group relative p-8 md:p-10 rounded-2xl cursor-default service-card ${isActive ? 'testimonial-active' : ''}`}
       style={{
         background: 'var(--bg-glass)',
         border: '1px solid var(--border-subtle)',
-        transition: 'all 0.5s cubic-bezier(0.22, 0.05, 0.1, 1)',
+        transition: 'all 0.5s cubic-bezier(0.22, 0.05, 0.1, 1), box-shadow 0.5s ease, border-color 0.5s ease',
         zIndex: 1,
       }}
     >
+      {/* Active glow dot indicator */}
+      {isActive && (
+        <span className="testimonial-active-dot" aria-hidden="true" />
+      )}
+
       {/* Hover gradient sweep */}
       <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
         <div className="absolute inset-0"
@@ -206,7 +240,7 @@ export default function ServicesSection() {
   return (
     <section
       id="services"
-      className="relative py-24 md:py-32 px-6"
+      className="relative py-24 md:py-32 px-6 overflow-x-hidden"
       style={{ background: 'var(--bg-section)' }}
     >
       {/* Texture */}
@@ -219,8 +253,12 @@ export default function ServicesSection() {
         }} />
 
       {/* Ambient */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(255,107,53,0.05) 0%, transparent 70%)' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+        style={{
+          width: 'min(600px, 85vw)',
+          height: 'min(350px, 50vw)',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(255,107,53,0.05) 0%, transparent 70%)',
+        }} />
 
       {/* 3D floating geometric accent */}
       <div className="absolute top-1/3 right-[8%] w-40 h-40 pointer-events-none opacity-[0.06]"

@@ -17,9 +17,10 @@ interface Point3D {
 
 interface Props {
   entranceProgress?: number | null;
+  visible?: boolean;
 }
 
-export default function ParticleGlobe({ entranceProgress = null }: Props) {
+export default function ParticleGlobe({ entranceProgress = null, visible = true }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const lastFrameRef = useRef<number>(0);
@@ -271,7 +272,12 @@ export default function ParticleGlobe({ entranceProgress = null }: Props) {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 5, opacity: 0.65, willChange: 'transform' }}
+      style={{
+        zIndex: 5,
+        opacity: visible ? 0.65 : 0,
+        willChange: 'transform',
+        transition: 'opacity 0.6s ease',
+      }}
     />
   );
 }

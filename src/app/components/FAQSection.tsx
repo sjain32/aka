@@ -77,7 +77,7 @@ function AccordionItem({
 
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between py-5 text-left"
+        className="w-full flex items-center justify-between py-5 px-4 md:px-6 text-left"
       >
         <span
           className="text-sm md:text-base font-medium pr-4 transition-colors duration-500 ease-out group-hover:text-(--accent)"
@@ -108,7 +108,7 @@ function AccordionItem({
             className="overflow-hidden"
           >
             <p
-              className="text-sm leading-relaxed pb-5"
+              className="text-sm leading-relaxed pb-5 px-4 md:px-6"
               style={{ color: 'var(--text-muted)', fontFamily: 'Inter, system-ui, sans-serif' }}
             >
               {faq.answer}
@@ -126,7 +126,7 @@ export default function FAQSection() {
 
   return (
     <section id="faq" className="glass-section py-24 md:py-32 px-6">
-      <div className="max-w-[800px] mx-auto" ref={ref}>
+      <div className="max-w-[900px] mx-auto" ref={ref}>
         {/* Header */}
         <div
           className="text-center mb-14"

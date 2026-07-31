@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface Stat {
   value: number;
@@ -25,9 +25,9 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      'Incredible turnaround time and attention to detail. He understood exactly what our brand needed without lengthy briefs.',
-    author: 'Rahul S.',
-    role: 'Founder, Urban Eats Media',
+      'Aakash is a highly creative editor who quickly understands a creator\'s vision and brings it to life perfectly. Some videos on our YouTube channel edited by him have achieved great views and engagement. Highly recommended!',
+    author: 'Harshit Beri',
+    role: 'CEO, ONLINE BERI',
   },
   {
     quote:
@@ -78,17 +78,132 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
   );
 }
 
+function TestimonialCard({
+  testimonial,
+  index,
+}: {
+  testimonial: (typeof TESTIMONIALS)[0];
+  index: number;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isActive, setIsActive] = useState(false);
+
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setIsActive(true);
+        } else {
+          // Only deactivate if the card has scrolled well past the viewport
+          // This prevents flickering when cards are partially visible
+          if (entry.boundingClientRect.bottom < -50 || entry.boundingClientRect.top > window.innerHeight + 50) {
+            setIsActive(false);
+          }
+        }
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    // Higher threshold on mobile so the highlight triggers when the card is more centered
+    const isMobile = window.innerWidth < 768;
+    const obs = new IntersectionObserver(handleIntersection, {
+      threshold: isMobile ? [0, 0.3, 0.5, 0.7, 1] : [0, 0.5, 1],
+      rootMargin: isMobile ? '-10% 0px -10% 0px' : '0px',
+    });
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [handleIntersection]);
+
+  return (
+    <motion.div
+      ref={cardRef}
+      className={`glass-card p-5 md:p-6 relative testimonial-card ${isActive ? 'testimonial-active' : ''}`}
+      style={{
+        transition:
+          'all 0.5s cubic-bezier(0.22, 0.05, 0.1, 1), box-shadow 0.5s ease, border-color 0.5s ease',
+        transformStyle: 'preserve-3d',
+      }}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        e.currentTarget.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-6px)`;
+        e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)';
+        e.currentTarget.style.borderColor = 'var(--border-accent)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0)';
+        e.currentTarget.style.boxShadow = '';
+        e.currentTarget.style.borderColor = isActive ? 'var(--border-accent-strong)' : 'var(--border-subtle)';
+      }}
+    >
+      {/* Active glow indicator for mobile */}
+      {isActive && (
+        <span className="testimonial-active-dot" aria-hidden="true" />
+      )}
+
+      {/* Quote mark */}
+      <span
+        className="absolute top-3 right-4 md:top-4 md:right-5 text-4xl md:text-5xl leading-none select-none"
+        style={{ color: 'rgba(255,107,53,0.15)', fontFamily: 'Georgia, serif' }}
+      >
+        &ldquo;
+      </span>
+
+      <p
+        className="text-sm leading-relaxed mb-5 relative z-10"
+        style={{ color: 'var(--text-secondary)', fontFamily: 'Inter, system-ui, sans-serif' }}
+      >
+        {testimonial.quote}
+      </p>
+
+      <div className="flex items-center gap-3">
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent), var(--accent-light))',
+            color: '#fff',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}
+        >
+          {testimonial.author.charAt(0)}
+        </div>
+        <div className="min-w-0">
+          <div
+            className="text-sm font-semibold truncate"
+            style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}
+          >
+            {testimonial.author}
+          </div>
+          <div
+            className="text-xs truncate"
+            style={{ color: 'var(--text-muted)', fontFamily: 'Inter, system-ui, sans-serif' }}
+          >
+            {testimonial.role}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function TestimonialsSection() {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
 
   return (
-    <section className="glass-section py-24 md:py-32 px-6">
-      <div className="glass-divider absolute top-0 left-6 right-6" />
+    <section className="glass-section py-20 md:py-32 px-4 sm:px-6 overflow-x-hidden">
+      <div className="glass-divider absolute top-0 left-4 sm:left-6 right-4 sm:right-6" />
 
       <div className="max-w-[1100px] mx-auto" ref={ref}>
         {/* Header */}
         <div
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
           style={{
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
@@ -96,21 +211,21 @@ export default function TestimonialsSection() {
           }}
         >
           <span
-            className="inline-block text-xs font-semibold tracking-[0.15em] uppercase mb-4"
+            className="inline-block text-[0.65rem] sm:text-xs font-semibold tracking-[0.15em] uppercase mb-3 md:mb-4"
             style={{ color: 'var(--accent)', fontFamily: 'Inter, system-ui, sans-serif' }}
           >
             Testimonials
           </span>
           <h2
-            className="text-3xl md:text-5xl font-bold mb-4 tracking-[-0.02em]"
+            className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 md:mb-4 tracking-[-0.02em]"
             style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}
           >
-            Trusted by Creators & Brands
+            Trusted by Creators &amp; Brands
           </h2>
         </div>
 
         {/* Stat counters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-12 md:mb-16 max-w-[500px] sm:max-w-none mx-auto">
           {STATS.map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -120,13 +235,13 @@ export default function TestimonialsSection() {
               className="text-center"
             >
               <div
-                className="text-4xl md:text-5xl font-extrabold mb-2 tracking-[-0.02em]"
+                className="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-1 md:mb-2 tracking-[-0.02em]"
                 style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}
               >
                 <AnimatedCounter target={stat.value} suffix={stat.suffix} />
               </div>
               <p
-                className="text-sm uppercase tracking-[0.08em]"
+                className="text-[0.6rem] sm:text-xs md:text-sm uppercase tracking-[0.08em]"
                 style={{ color: 'var(--text-muted)', fontFamily: 'Inter, system-ui, sans-serif' }}
               >
                 {stat.label}
@@ -136,71 +251,9 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Testimonial cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={t.author}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isVisible ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: 0.4 + i * 0.12, ease: [0.16, 0.04, 0.12, 1] }}
-              className="glass-card p-6"
-              style={{ transition: 'all 0.5s cubic-bezier(0.22, 0.05, 0.1, 1)', transformStyle: 'preserve-3d' }}
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
-                e.currentTarget.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-6px)`;
-                e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)';
-                e.currentTarget.style.borderColor = 'var(--border-accent)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0)';
-                e.currentTarget.style.boxShadow = '';
-                e.currentTarget.style.borderColor = 'var(--border-subtle)';
-              }}
-            >
-              {/* Quote mark */}
-              <span
-                className="absolute top-4 right-5 text-5xl leading-none select-none"
-                style={{ color: 'rgba(255,107,53,0.15)', fontFamily: 'Georgia, serif' }}
-              >
-                &ldquo;
-              </span>
-
-              <p
-                className="text-sm leading-relaxed mb-5 relative z-10"
-                style={{ color: 'var(--text-secondary)', fontFamily: 'Inter, system-ui, sans-serif' }}
-              >
-                {t.quote}
-              </p>
-
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{
-                    background: 'linear-gradient(135deg, var(--accent), var(--accent-light))',
-                    color: '#fff',
-                    fontFamily: 'Inter, system-ui, sans-serif',
-                  }}
-                >
-                  {t.author.charAt(0)}
-                </div>
-                <div>
-                  <div
-                    className="text-sm font-semibold"
-                    style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}
-                  >
-                    {t.author}
-                  </div>
-                  <div
-                    className="text-xs"
-                    style={{ color: 'var(--text-muted)', fontFamily: 'Inter, system-ui, sans-serif' }}
-                  >
-                    {t.role}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <TestimonialCard key={t.author} testimonial={t} index={i} />
           ))}
         </div>
       </div>

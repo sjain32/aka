@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   description: "Professional video editing portfolio showcasing creative work",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

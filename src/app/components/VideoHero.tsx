@@ -26,7 +26,6 @@ export default function VideoHero({
   const isYouTube = !!youtubeId;
 
   useEffect(() => {
-    // Auto-play video when component mounts (only for direct video)
     if (videoRef.current && !isYouTube) {
       videoRef.current.play().catch(() => {
         console.log('Auto-play was prevented');
@@ -57,7 +56,7 @@ export default function VideoHero({
     <section className="video-hero-section">
       <div className="video-hero-container">
         {/* Video Background */}
-        <div 
+        <div
           className="video-hero-wrapper"
           onMouseEnter={() => !isYouTube && setShowControls(true)}
           onMouseLeave={() => !isYouTube && setShowControls(false)}
@@ -65,7 +64,7 @@ export default function VideoHero({
           {isYouTube ? (
             <iframe
               className="video-hero-player youtube-player"
-              // src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
               title="YouTube video player"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -86,41 +85,41 @@ export default function VideoHero({
           )}
 
           {/* Video Overlay Gradient */}
-          <div className="video-hero-overlay"></div>
+          <div className="video-hero-overlay" />
 
           {/* Video Controls - Only for direct video */}
           {!isYouTube && (
             <div className={`video-hero-controls ${showControls ? 'visible' : ''}`}>
-              <button 
-                className="video-control-btn play-pause-btn"
+              <button
+                className="video-control-btn"
                 onClick={togglePlay}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="6" y="4" width="4" height="16" />
                     <rect x="14" y="4" width="4" height="16" />
                   </svg>
                 ) : (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="5 3 19 12 5 21 5 3" />
                   </svg>
                 )}
               </button>
 
-              <button 
-                className="video-control-btn mute-btn"
+              <button
+                className="video-control-btn"
                 onClick={toggleMute}
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
               >
                 {isMuted ? (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
                     <line x1="23" y1="9" x2="17" y2="15" />
                     <line x1="17" y1="9" x2="23" y2="15" />
                   </svg>
                 ) : (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
                     <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
                   </svg>
@@ -131,25 +130,32 @@ export default function VideoHero({
 
           {/* Decorative Corner Brackets */}
           <div className="video-hero-brackets">
-            <div className="bracket bracket-tl"></div>
-            <div className="bracket bracket-tr"></div>
-            <div className="bracket bracket-bl"></div>
-            <div className="bracket bracket-br"></div>
+            <div className="bracket bracket-tl" />
+            <div className="bracket bracket-tr" />
+            <div className="bracket bracket-bl" />
+            <div className="bracket bracket-br" />
           </div>
         </div>
 
         {/* Content Overlay */}
         <div className="video-hero-content">
           {/* Badge at top */}
-          <div className="video-hero-badge video-hero-badge-top">
-            <span className="badge-dot-hero"></span>
-            <span className="badge-text-hero">Featured Showreel</span>
+          <div className="video-hero-badge-top">
+            <div className="video-hero-badge">
+              <span className="badge-dot-hero" />
+              <span className="badge-text-hero">Featured Showreel</span>
+            </div>
           </div>
 
-          {/* Button and Scroll at bottom */}
+          {/* Centered Title */}
+          <h1 className="video-hero-title">{title}</h1>
+
+          {/* Bottom section */}
           <div className="video-hero-bottom">
+            <p className="video-hero-subtitle">{subtitle}</p>
+
             <div className="video-hero-actions">
-              <button 
+              <button
                 className="btn btn-primary btn-lg video-hero-cta"
                 onClick={onCtaClick}
               >
@@ -164,18 +170,18 @@ export default function VideoHero({
             {/* Scroll Indicator */}
             <div className="scroll-indicator">
               <div className="scroll-mouse">
-                <div className="scroll-wheel"></div>
+                <div className="scroll-wheel" />
               </div>
               <span className="scroll-text">Scroll to explore</span>
             </div>
           </div>
         </div>
 
-        {/* Animated Particles - Reduced for minimal design */}
+        {/* Animated Particles */}
         <div className="video-hero-particles">
           {Array.from({ length: 10 }).map((_, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="particle"
               style={{
                 left: `${Math.random() * 100}%`,

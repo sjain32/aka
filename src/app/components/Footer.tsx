@@ -23,7 +23,7 @@ export default function Footer() {
         </button>
 
         {/* Links */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6 flex-wrap justify-center">
           {[
             { label: 'Work', href: '#work' },
             { label: 'About', href: '#about' },

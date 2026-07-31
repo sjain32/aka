@@ -24,6 +24,7 @@ type Phase = 'loading' | 'entering' | 'done';
 export default function Home() {
   const [phase, setPhase] = useState<Phase>('loading');
   const [entranceProgress, setEntranceProgress] = useState(0);
+  const [globeVisible, setGlobeVisible] = useState(true);
   const entranceRafRef = useRef<number>(0);
   const entranceStartRef = useRef<number>(0);
   const DURATION = 1500; // 1.5s entrance animation
@@ -48,6 +49,35 @@ export default function Home() {
     };
 
     entranceRafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  // Hide globe when hero or work sections are in view
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroEl = document.getElementById('hero');
+      const workEl = document.getElementById('work');
+      const viewHeight = window.innerHeight;
+
+      let hide = false;
+
+      if (heroEl) {
+        const heroRect = heroEl.getBoundingClientRect();
+        // Hero is still substantially visible
+        if (heroRect.bottom > viewHeight * 0.2) hide = true;
+      }
+
+      if (!hide && workEl) {
+        const workRect = workEl.getBoundingClientRect();
+        // Work section is in view
+        if (workRect.top < viewHeight * 0.8 && workRect.bottom > 0) hide = true;
+      }
+
+      setGlobeVisible(!hide);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // initial check
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -75,9 +105,10 @@ export default function Home() {
         />
       )}
 
-      {/* Globe — always present, assembles during entrance */}
+      {/* Globe — hidden over hero and work sections for content visibility */}
       <ParticleGlobe
         entranceProgress={phase === 'loading' ? 0 : phase === 'entering' ? entranceProgress : null}
+        visible={globeVisible}
       />
 
       <ClientOnlyPortfolio show={phase === 'done'} />
@@ -93,7 +124,7 @@ function ClientOnlyPortfolio({ show }: { show: boolean }) {
 
   return (
     <motion.div
-      className="min-h-screen"
+      className="min-h-screen w-full overflow-x-hidden"
       style={{ background: 'var(--bg-root)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: show ? 1 : 0 }}
@@ -131,7 +162,7 @@ function ClientOnlyPortfolio({ show }: { show: boolean }) {
         </ScrollReveal>
       </div>
 
-      <div id="reels">
+      <div id="work">
         <ReelsShowcase />
       </div>
 

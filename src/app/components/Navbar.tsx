@@ -7,7 +7,6 @@ import { useTheme } from '../context/ThemeContext';
 
 const NAV_LINKS = [
   { label: 'Work', href: '#work' },
-  { label: 'Reels', href: '#reels' },
   { label: 'About', href: '#about' },
   { label: 'Services', href: '#services' },
   { label: 'FAQ', href: '#faq' },
@@ -154,7 +153,7 @@ export default function Navbar() {
             transition={{ duration: 0.3, ease: [0.16, 0.04, 0.12, 1] }}
             className="md:hidden overflow-hidden"
             style={{
-              background: scrolled ? 'var(--nav-bg)' : 'rgba(0,0,0,0.6)',
+              background: 'var(--nav-bg)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
               borderRadius: '0 0 16px 16px',
@@ -167,11 +166,11 @@ export default function Navbar() {
                   onClick={() => scrollTo(link.href)}
                   className="text-sm font-medium tracking-[0.05em] uppercase text-left px-2 transition-colors"
                   style={{
-                    color: 'rgba(255,255,255,0.7)',
+                    color: 'var(--text-secondary)',
                     fontFamily: 'Inter, system-ui, sans-serif',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}
                 >
                   {link.label}
                 </button>

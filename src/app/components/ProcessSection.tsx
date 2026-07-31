@@ -65,7 +65,7 @@ export default function ProcessSection() {
   }, [recalcPositions]);
 
   const updateActive = useCallback(() => {
-    const viewportMid = window.innerHeight * 0.45;
+    const viewportMid = window.innerHeight * 0.55;
     let best = -1;
     stepRefs.current.forEach((el, i) => {
       if (!el) return;
@@ -96,11 +96,11 @@ export default function ProcessSection() {
     <section
       id="process"
       ref={sectionRef}
-      className="glass-section py-24 md:py-32 px-6 overflow-hidden"
+      className="glass-section py-20 md:py-32 px-6 overflow-hidden"
     >
       {/* Ambient orbs */}
-      <div className="glass-ambient w-[500px] h-[500px] -top-32 left-1/2 -translate-x-1/2" style={{ background: 'rgba(255,107,53,0.05)' }} />
-      <div className="glass-ambient w-[350px] h-[350px] -bottom-16 right-0" style={{ background: 'rgba(255,140,80,0.04)', animationDelay: '-8s' }} />
+      <div className="glass-ambient -top-32 left-1/2 -translate-x-1/2" style={{ background: 'rgba(255,107,53,0.05)', width: 'min(500px, 80vw)', height: 'min(500px, 80vw)' }} />
+      <div className="glass-ambient -bottom-16 right-0" style={{ background: 'rgba(255,140,80,0.04)', animationDelay: '-8s', width: 'min(350px, 60vw)', height: 'min(350px, 60vw)' }} />
 
       {/* 3D floating gem shapes */}
       <div className="absolute top-1/4 left-[10%] w-32 h-32 pointer-events-none opacity-[0.04]"

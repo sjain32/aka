@@ -107,7 +107,7 @@ export default function ReelsShowcase() {
 
   return (
     <section
-      className="relative py-24 md:py-32 overflow-hidden"
+      className="relative py-24 md:py-32 overflow-x-hidden"
       style={{ background: 'var(--bg-root)' }}
       ref={sectionRef}
     >
@@ -115,8 +115,12 @@ export default function ReelsShowcase() {
       <div className="absolute top-0 left-6 right-6 glass-divider" />
 
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse, rgba(255,107,53,0.05) 0%, transparent 60%)' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        style={{
+          width: 'min(800px, 95vw)',
+          height: 'min(600px, 70vh)',
+          background: 'radial-gradient(ellipse, rgba(255,107,53,0.05) 0%, transparent 60%)',
+        }} />
 
       <div className="max-w-[1400px] mx-auto px-6">
         {/* Header */}
@@ -129,11 +133,11 @@ export default function ReelsShowcase() {
           <div>
             <span className="inline-block text-xs font-semibold tracking-[0.15em] uppercase mb-3"
               style={{ color: 'var(--accent)', fontFamily: 'Inter, system-ui, sans-serif' }}>
-              Short-Form Content
+              My Work
             </span>
             <h2 className="text-3xl md:text-5xl font-bold tracking-[-0.02em]"
               style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}>
-              Reels &amp; Shorts
+              Featured Projects
             </h2>
           </div>
 
