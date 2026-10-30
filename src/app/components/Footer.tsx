@@ -1,5 +1,7 @@
 'use client';
 
+import AkashMark from './AkashMark';
+
 export default function Footer() {
   const scrollTo = (href: string) => {
     const el = document.querySelector(href);
@@ -14,12 +16,18 @@ export default function Footer() {
         {/* Logo */}
         <button
           onClick={() => scrollTo('#hero')}
-          className="text-lg font-bold tracking-[0.15em] transition-colors"
-          style={{ color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif' }}
+          aria-label="Akash — back to top"
+          className="flex items-center gap-3 text-lg font-extrabold tracking-[0.04em] transition-colors"
+          style={{
+            color: 'var(--text-primary)',
+            fontFamily: 'var(--font-archivo), Inter, system-ui, sans-serif',
+            fontStretch: '125%',
+          }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; }}
         >
-          AKASH<span style={{ color: 'var(--accent)' }}>.</span>
+          <AkashMark size={28} />
+          AKASH
         </button>
 
         {/* Links */}

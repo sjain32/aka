@@ -140,7 +140,7 @@ export default function ParticleGlobe({ entranceProgress = null, visible = true 
       const key = alpha.toFixed(3);
       if (!accentCache[key]) {
         const el = document.documentElement;
-        const hex = (getComputedStyle(el).getPropertyValue('--accent').trim() || '#FF6B35').replace('#', '');
+        const hex = (getComputedStyle(el).getPropertyValue('--globe-color').trim() || '#FF6B35').replace('#', '');
         const r = parseInt(hex.substring(0, 2), 16);
         const g = parseInt(hex.substring(2, 4), 16);
         const b = parseInt(hex.substring(4, 6), 16);
@@ -182,7 +182,8 @@ export default function ParticleGlobe({ entranceProgress = null, visible = true 
       const sinX = Math.sin(tiltX);
 
       const isLight = document.documentElement.classList.contains('light');
-      const themeBoost = isLight ? 3.2 : 1.0;
+      // Light mode renders behind content (see .particle-globe in globals.css), so a mild boost is enough
+      const themeBoost = isLight ? 2.0 : 1.0;
 
       // Globe grows from tiny seed → full size
       const globeScale = 0.06 + easedEnt * 0.94;
@@ -271,12 +272,12 @@ export default function ParticleGlobe({ entranceProgress = null, visible = true 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
+      className={`particle-globe fixed inset-0 pointer-events-none ${entranceProgress === null ? 'is-settled' : ''}`}
       style={{
         zIndex: 5,
         opacity: visible ? 0.65 : 0,
         willChange: 'transform',
-        transition: 'opacity 0.6s ease',
+        transition: 'opacity 0.6s ease, filter 0.5s ease',
       }}
     />
   );

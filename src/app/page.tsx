@@ -18,6 +18,7 @@ import CustomCursor from './components/CustomCursor';
 import Preloader from './components/Preloader';
 import BackgroundScene from './components/BackgroundScene';
 import ParticleGlobe from './components/ParticleGlobe';
+import { getWhatsAppUrl } from './lib/whatsapp';
 
 type Phase = 'loading' | 'entering' | 'done';
 
@@ -84,24 +85,22 @@ export default function Home() {
     return () => cancelAnimationFrame(entranceRafRef.current);
   }, []);
 
+  // Keep the preloader's landed logo on top until the page (and its navbar
+  // logo underneath) has fully faded in, so the handoff never blinks
+  const [logoLanded, setLogoLanded] = useState(false);
+  useEffect(() => {
+    if (phase !== 'done') return;
+    const id = setTimeout(() => setLogoLanded(true), 700);
+    return () => clearTimeout(id);
+  }, [phase]);
+
   return (
-    <NoSSR fallback={
-      <div className="min-h-screen" style={{ background: 'var(--bg-root)' }}>
-        <section className="hero">
-          <div className="container">
-            <h1 className="hero-title">Video Editor Portfolio</h1>
-            <p className="hero-subtitle">
-              Bringing stories to life through creative video editing
-            </p>
-          </div>
-        </section>
-      </div>
-    }>
+    <NoSSR fallback={<div className="fixed inset-0" style={{ background: 'var(--bg-root)' }} />}>
       {/* Preloader — visible during loading + entrance */}
-      {phase !== 'done' && (
+      {!logoLanded && (
         <Preloader
           onComplete={startEntrance}
-          exitProgress={phase === 'entering' ? entranceProgress : 0}
+          exitProgress={phase === 'loading' ? 0 : entranceProgress}
         />
       )}
 
@@ -124,8 +123,7 @@ function ClientOnlyPortfolio({ show }: { show: boolean }) {
 
   return (
     <motion.div
-      className="min-h-screen w-full overflow-x-hidden"
-      style={{ background: 'var(--bg-root)' }}
+      className="page-shell min-h-screen w-full overflow-x-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: show ? 1 : 0 }}
       transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
@@ -137,7 +135,6 @@ function ClientOnlyPortfolio({ show }: { show: boolean }) {
       <div id="hero">
         <VideoHero
           youtubeId="cAY8UEAGaI4"
-          title="Watch My Latest Work"
           subtitle="Professional video editing that brings your vision to life"
           ctaText="Explore My Work"
           onCtaClick={scrollToProjects}
@@ -198,7 +195,9 @@ function ClientOnlyPortfolio({ show }: { show: boolean }) {
               I&apos;m here to bring your vision to life.
             </p>
             <motion.a
-              href="mailto:akash@example.com"
+              href={getWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn btn-primary btn-lg inline-flex items-center gap-2"
               style={{ textDecoration: 'none', transformStyle: 'preserve-3d' }}
               whileHover={{ scale: 1.06, translateZ: 20 }}

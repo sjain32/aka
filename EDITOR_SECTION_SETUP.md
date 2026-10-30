@@ -1,3 +1,4 @@
+
 # Editor Section Setup Guide
 
 ## Adding Your Photo

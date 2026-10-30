@@ -80,7 +80,19 @@ const SERVICES: Service[] = [
 
 /* ── Service Card ── */
 
-function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; isVisible: boolean }) {
+function ServiceCard({
+  svc,
+  index,
+  isVisible,
+  isFocused,
+  onFocus,
+}: {
+  svc: Service;
+  index: number;
+  isVisible: boolean;
+  isFocused: boolean;
+  onFocus: () => void;
+}) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isActive, setIsActive] = useState(false);
 
@@ -122,7 +134,6 @@ function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; i
     el.style.background = 'var(--bg-glass-hover)';
     el.style.borderColor = 'var(--border-accent)';
     el.style.boxShadow = 'var(--shadow-card-hover)';
-    el.style.zIndex = '5';
   };
 
   const onLeave = () => {
@@ -132,7 +143,6 @@ function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; i
     el.style.background = 'var(--bg-glass)';
     el.style.borderColor = isActive ? 'var(--border-accent-strong)' : 'var(--border-subtle)';
     el.style.boxShadow = isActive ? '0 0 0 2px rgba(255,107,53,0.2), 0 0 24px rgba(255,107,53,0.12), var(--shadow-card)' : 'none';
-    el.style.zIndex = '1';
   };
 
   return (
@@ -141,14 +151,16 @@ function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; i
       initial={{ opacity: 0, y: 30 }}
       animate={isVisible ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay: 0.15 + index * 0.1, ease: [0.16, 0.04, 0.12, 1] }}
+      onMouseEnter={onFocus}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       className={`group relative p-8 md:p-10 rounded-2xl cursor-default service-card ${isActive ? 'testimonial-active' : ''}`}
       style={{
         background: 'var(--bg-glass)',
         border: '1px solid var(--border-subtle)',
-        transition: 'all 0.5s cubic-bezier(0.22, 0.05, 0.1, 1), box-shadow 0.5s ease, border-color 0.5s ease',
-        zIndex: 1,
+        transition: 'transform 0.5s cubic-bezier(0.22, 0.05, 0.1, 1), background 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease',
+        // Above the focus overlay (z 4) while hovered, below it otherwise
+        zIndex: isFocused ? 5 : 1,
       }}
     >
       {/* Active glow dot indicator */}
@@ -236,6 +248,19 @@ function ServiceCard({ svc, index, isVisible }: { svc: Service; index: number; i
 
 export default function ServicesSection() {
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+
+  const focusCard = (i: number) => {
+    // Touch devices fire mouseenter on tap — keep focus mode to real hover
+    if (window.matchMedia('(hover: hover)').matches) setFocusedIndex(i);
+  };
+
+  // The particle globe is a fixed layer above page content, so blur it via a root class
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle('card-focus', focusedIndex !== null);
+    return () => root.classList.remove('card-focus');
+  }, [focusedIndex]);
 
   return (
     <section
@@ -276,6 +301,13 @@ export default function ServicesSection() {
           animation: 'float3D 10s ease-in-out infinite reverse',
         }} />
 
+      {/* Focus overlay — blurs everything in the section behind the hovered card */}
+      <div
+        aria-hidden="true"
+        className="services-focus-overlay absolute inset-0 pointer-events-none"
+        style={{ opacity: focusedIndex !== null ? 1 : 0, zIndex: 4 }}
+      />
+
       {/* Divider */}
       <div className="absolute top-0 left-6 right-6 glass-divider" />
 
@@ -299,9 +331,16 @@ export default function ServicesSection() {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4" onMouseLeave={() => setFocusedIndex(null)}>
           {SERVICES.map((svc, i) => (
-            <ServiceCard key={svc.title} svc={svc} index={i} isVisible={isVisible} />
+            <ServiceCard
+              key={svc.title}
+              svc={svc}
+              index={i}
+              isVisible={isVisible}
+              isFocused={focusedIndex === i}
+              onFocus={() => focusCard(i)}
+            />
           ))}
         </div>
       </div>

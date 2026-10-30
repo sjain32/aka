@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
+import AkashMark from './AkashMark';
 import { useTheme } from '../context/ThemeContext';
+import { getWhatsAppUrl } from '../lib/whatsapp';
 
 const NAV_LINKS = [
   { label: 'Work', href: '#work' },
@@ -67,15 +69,21 @@ export default function Navbar() {
         {/* Logo */}
         <button
           onClick={() => scrollTo('#hero')}
-          className="text-lg font-bold tracking-[0.15em] transition-colors"
+          aria-label="Akash — back to top"
+          className="flex items-center gap-3 text-lg font-extrabold tracking-[0.04em] transition-colors"
           style={{
             color: textColor,
-            fontFamily: 'Inter, system-ui, sans-serif',
+            fontFamily: 'var(--font-archivo), Inter, system-ui, sans-serif',
+            fontStretch: '125%',
           }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = textColor; }}
         >
-          AKASH<span style={{ color: 'var(--accent)' }}>.</span>
+          {/* data-logo-target: where the preloader's logo lands on exit */}
+          <span data-logo-target="mark" className="flex">
+            <AkashMark size={28} />
+          </span>
+          <span data-logo-target="word" className="leading-none">AKASH</span>
         </button>
 
         {/* Desktop links + theme toggle */}
@@ -105,12 +113,15 @@ export default function Navbar() {
               {link.label}
             </button>
           ))}
-          <button
-            onClick={() => scrollTo('#contact')}
+          <a
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn btn-primary btn-sm ml-4"
+            style={{ textDecoration: 'none' }}
           >
             Book a Call
-          </button>
+          </a>
           <div className="ml-2">
             <ThemeToggle />
           </div>
@@ -175,12 +186,16 @@ export default function Navbar() {
                   {link.label}
                 </button>
               ))}
-              <button
-                onClick={() => scrollTo('#contact')}
+              <a
+                href={getWhatsAppUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
                 className="btn btn-primary btn-sm self-start mt-2"
+                style={{ textDecoration: 'none' }}
               >
                 Book a Call
-              </button>
+              </a>
             </div>
           </motion.div>
         )}

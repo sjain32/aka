@@ -5,7 +5,6 @@ import { useRef, useState, useEffect } from 'react';
 interface VideoHeroProps {
   videoUrl?: string;
   youtubeId?: string;
-  title?: string;
   subtitle?: string;
   ctaText?: string;
   onCtaClick?: () => void;
@@ -14,7 +13,6 @@ interface VideoHeroProps {
 export default function VideoHero({
   videoUrl,
   youtubeId,
-  title = "Watch My Latest Work",
   subtitle = "Professional video editing that brings your vision to life",
   ctaText = "Explore More Projects",
   onCtaClick
@@ -146,9 +144,6 @@ export default function VideoHero({
               <span className="badge-text-hero">Featured Showreel</span>
             </div>
           </div>
-
-          {/* Centered Title */}
-          <h1 className="video-hero-title">{title}</h1>
 
           {/* Bottom section */}
           <div className="video-hero-bottom">
